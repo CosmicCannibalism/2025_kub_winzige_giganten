@@ -5,15 +5,19 @@
 
 const APP_SHELL_CACHE = 'wg-shell-v3';
 const VIDEO_RUNTIME_CACHE = 'wg-videos-v1';
-const INDEX_PATH = '/2025_kunst_und_brot_winzige_giganten/index.html';
+// Derive scope and index path relative to the service worker location so the SW
+// works whether deployed at repo root or in a subpath (GitHub Pages project site).
+const SW_URL = self.location.href;
+const SW_BASE = new URL('.', SW_URL).pathname; // example: '/2025_kunst_und_brot_winzige_giganten/'
+const INDEX_PATH = SW_BASE + 'index.html';
 
 const APP_SHELL_FILES = [
   INDEX_PATH,
-  '/2025_kunst_und_brot_winzige_giganten/style.css',
-  '/2025_kunst_und_brot_winzige_giganten/script.js',
-  '/2025_kunst_und_brot_winzige_giganten/manifest.json',
-  '/2025_kunst_und_brot_winzige_giganten/icons/icon-192.png',
-  '/2025_kunst_und_brot_winzige_giganten/icons/icon-512.png'
+  SW_BASE + 'style.css',
+  SW_BASE + 'script.js',
+  SW_BASE + 'manifest.json',
+  SW_BASE + 'icons/icon-192.png',
+  SW_BASE + 'icons/icon-512.png'
 ];
 
 // Limit entries in a cache to avoid unbounded growth
@@ -45,8 +49,8 @@ self.addEventListener('fetch', event => {
   const req = event.request;
   const url = new URL(req.url);
 
-  // Only handle requests within our app folder
-  if (!url.pathname.startsWith('/winzige_giganten_webapp/')) return;
+  // Only handle requests within our app folder (respect the SW base path)
+  if (!url.pathname.startsWith(SW_BASE)) return;
 
   // Navigations: serve cached index.html so homescreen launches work offline
   if (req.mode === 'navigate') {
