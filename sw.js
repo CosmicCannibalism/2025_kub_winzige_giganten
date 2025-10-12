@@ -5,15 +5,15 @@
 
 const APP_SHELL_CACHE = 'wg-shell-v3';
 const VIDEO_RUNTIME_CACHE = 'wg-videos-v1';
-const INDEX_PATH = '/winzige_giganten_webapp/winzige_giganten_index.html';
+const INDEX_PATH = '/2025_kunst_und_brot_winzige_giganten/index.html';
 
 const APP_SHELL_FILES = [
   INDEX_PATH,
-  '/winzige_giganten_webapp/style.css',
-  '/winzige_giganten_webapp/script.js',
-  '/winzige_giganten_webapp/manifest.json',
-  '/winzige_giganten_webapp/icons/icon-192.png',
-  '/winzige_giganten_webapp/icons/icon-512.png'
+  '/2025_kunst_und_brot_winzige_giganten/style.css',
+  '/2025_kunst_und_brot_winzige_giganten/script.js',
+  '/2025_kunst_und_brot_winzige_giganten/manifest.json',
+  '/2025_kunst_und_brot_winzige_giganten/icons/icon-192.png',
+  '/2025_kunst_und_brot_winzige_giganten/icons/icon-512.png'
 ];
 
 // Limit entries in a cache to avoid unbounded growth
