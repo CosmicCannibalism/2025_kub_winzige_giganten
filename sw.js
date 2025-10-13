@@ -58,17 +58,64 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Videos: network-first with cache fallback
+  // Videos: network-first with cache fallback.
+  // Browsers often use Range requests for media; Range headers cause cached keys to miss.
+  // Strategy: when fetching from network, request the full resource (no Range) so we cache
+  // a complete copy under a normalized key (SW_BASE + video pathname). When offline,
+  // we match that normalized key and return the cached full response.
   if (req.destination === 'video' || url.pathname.endsWith('.mp4')) {
     event.respondWith((async () => {
+    // Create a normalized key that keeps the videos in the same "videos/" folder
+    // so cached entries match requests for `/.../videos/<file>` later.
+    const filename = url.pathname.split('/').pop();
+    const normalizedKey = SW_BASE + 'videos/' + filename;
       try {
-        const response = await fetch(req);
+        // If the request includes a Range header, fetch a full copy (no Range)
+        const needsFull = req.headers.has('range');
+        const fetchReq = needsFull ? new Request(req.url, { method: 'GET', headers: new Headers(), mode: req.mode, credentials: req.credentials, redirect: req.redirect }) : req;
+
+        const response = await fetch(fetchReq);
+
+        // Cache the full response under a normalized key (use pathname filename)
         const cache = await caches.open(VIDEO_RUNTIME_CACHE);
-        cache.put(req, response.clone()).then(() => trimCache(VIDEO_RUNTIME_CACHE, 3)).catch(() => {});
+        // Store under a cleaned request so future Range requests match the cached full file
+        cache.put(new Request(normalizedKey), response.clone()).then(() => trimCache(VIDEO_RUNTIME_CACHE, 3)).catch(() => {});
         return response;
       } catch (err) {
-        const cached = await caches.match(req);
-        if (cached) return cached;
+        // Try to find the cached full video (normalized key)
+        const cached = await caches.match(new Request(normalizedKey));
+        if (cached) {
+          // If the client requested a byte range, serve a 206 Partial Content slice
+          const range = req.headers.get('range');
+          if (range) {
+            try {
+              const buffer = await cached.arrayBuffer();
+              const size = buffer.byteLength;
+              // parse "bytes=start-end"
+              const matches = /bytes=(\d*)-(\d*)/.exec(range);
+              let start = 0, end = size - 1;
+              if (matches) {
+                if (matches[1]) start = parseInt(matches[1], 10);
+                if (matches[2]) end = parseInt(matches[2], 10);
+              }
+              // clamp
+              start = Math.max(0, Math.min(start, size - 1));
+              end = Math.max(start, Math.min(end, size - 1));
+              const chunk = buffer.slice(start, end + 1);
+              const headers = new Headers();
+              const contentType = cached.headers && cached.headers.get('content-type');
+              if (contentType) headers.set('Content-Type', contentType);
+              headers.set('Content-Range', `bytes ${start}-${end}/${size}`);
+              headers.set('Accept-Ranges', 'bytes');
+              headers.set('Content-Length', String(chunk.byteLength));
+              return new Response(chunk, { status: 206, statusText: 'Partial Content', headers });
+            } catch (e) {
+              // fallback to returning the whole cached response
+              return cached;
+            }
+          }
+          return cached;
+        }
         return new Response('', { status: 503, statusText: 'Service Unavailable' });
       }
     })());

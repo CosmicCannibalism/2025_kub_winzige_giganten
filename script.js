@@ -103,4 +103,31 @@ function checkReady() {
       });
     });
   }
+  
+  // Background caching: attempt to download and cache full video files after SW registers.
+  // This requests the full resource (no Range) and stores it under the normalized key used by the SW.
+  function backgroundCacheVideos(videoUrls) {
+    if (!('caches' in window)) return;
+    const VIDEO_RUNTIME_CACHE = 'wg-videos-v1';
+    // Fetch each video without Range header and store under SW-normalized request URL
+    videoUrls.forEach(url => {
+      // Resolve relative URL
+      const abs = new URL(url, location.href).pathname;
+      const filename = abs.split('/').pop();
+      const normalizedKey = new URL('.', location.href).pathname + 'videos/' + filename;
+      // Fetch a full copy
+      fetch(url, { method: 'GET', headers: new Headers() }).then(resp => {
+        if (!resp.ok) throw new Error('Failed to fetch ' + url);
+        return caches.open(VIDEO_RUNTIME_CACHE).then(cache => cache.put(new Request(normalizedKey), resp.clone()));
+      }).catch(err => console.warn('backgroundCacheVideos error', err));
+    });
+  }
+
+  // After registration completes, initiate background caching for the two videos
+  window.addEventListener('load', () => {
+    if (!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker.ready.then(() => {
+      backgroundCacheVideos(['videos/teaser.mp4', 'videos/main.mp4']);
+    }).catch(() => {});
+  });
 })();
