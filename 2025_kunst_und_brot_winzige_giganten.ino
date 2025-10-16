@@ -23,7 +23,7 @@ unsigned long lastDebounceTime = 0;
 
 void setup() {
   pinMode(buttonPin, INPUT_PULLUP);
-  pinMode(relayPin, OUTPUT);
+  pinMode(relayPin, OUTPUT);                       
   digitalWrite(relayPin, LOW); // relay initially closed
   Keyboard.begin();
 }
