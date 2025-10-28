@@ -51,3 +51,4 @@ All monitoring scripts are in the `scripts/` folder:
 - ✅ 3 successful power cycles without issues
 - ✅ Autonomous recovery operational
 - ✅ Exhibition-ready for 3-5 month deployment
+- ✅ Multi-iPad setup: 3 iPads with dedicated HTML/manifest files

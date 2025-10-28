@@ -9,11 +9,15 @@ Validated for 3-5 month autonomous operation.
 ## Project Structure
 
 ```
-├── index.html              # PWA main page (served from root)
-├── manifest.json           # PWA manifest
-├── script.js              # PWA JavaScript
-├── style.css              # PWA styles
-├── sw.js                  # Service Worker for offline caching
+├── index.html              # PWA main page - iPad 1 (default)
+├── index01.html            # PWA page - iPad 2
+├── index02.html            # PWA page - iPad 3
+├── manifest.json           # PWA manifest - iPad 1
+├── manifest01.json         # PWA manifest - iPad 2
+├── manifest02.json         # PWA manifest - iPad 3
+├── script.js              # PWA JavaScript (shared)
+├── style.css              # PWA styles (shared)
+├── sw.js                  # Service Worker for offline caching (shared)
 ├── icons/                 # PWA icons
 ├── videos/                # Video content (main.mp4, teaser.mp4)
 ├── spec/                  # Feature specifications
@@ -42,10 +46,15 @@ Validated for 3-5 month autonomous operation.
 ## System Features
 
 ### PWA (Progressive Web App)
+- **3 iPad Installation**: Exhibition uses 3 iPads, each with dedicated HTML/manifest
+  - iPad 1: `index.html` + `manifest.json` (default)
+  - iPad 2: `index01.html` + `manifest01.json`
+  - iPad 3: `index02.html` + `manifest02.json`
 - Offline-capable video playback
 - Install on iPad homescreen
 - Service worker caching for offline operation
 - H.264 MP4 video support with Range requests
+- Shared resources: `script.js`, `style.css`, `sw.js`
 
 ### Raspberry Pi Infrastructure
 - **WiFi Hotspot**: SSID "winzige_giganten" (password: winzigegiganten)
@@ -88,8 +97,11 @@ cd pi-deployment/testing
 
 ### iPad Installation
 1. Connect to "winzige_giganten" WiFi
-2. Open Safari and navigate to captive portal
-3. Add PWA to homescreen
+2. Open Safari and navigate to captive portal or:
+   - iPad 1: http://192.168.4.1/index.html
+   - iPad 2: http://192.168.4.1/index01.html
+   - iPad 3: http://192.168.4.1/index02.html
+3. Add PWA to homescreen (each iPad gets its own version)
 4. Videos work offline after initial load
 
 ## System Requirements
