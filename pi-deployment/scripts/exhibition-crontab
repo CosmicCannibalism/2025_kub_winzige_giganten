@@ -1,0 +1,27 @@
+# Exhibition Monitoring Cron Jobs
+# Add this to root crontab: sudo crontab -e
+# These jobs manage the exhibition monitoring system
+
+# Software watchdog - run every 2 minutes
+*/2 * * * * /usr/local/sbin/wg-watchdog.sh check >/dev/null 2>&1
+
+# Hourly stats collection and log rotation
+0 * * * * /usr/local/sbin/wg-log-manager.sh hourly >/dev/null 2>&1
+
+# Device connection monitoring every 5 minutes
+*/5 * * * * /usr/local/sbin/wg-device-monitor.sh >/dev/null 2>&1
+
+# Temperature monitoring every 10 minutes
+*/10 * * * * /usr/local/sbin/wg-temp-monitor.sh >/dev/null 2>&1
+
+# System cleanup every 6 hours
+0 */6 * * * /usr/local/sbin/wg-cleanup-optimization.sh >/dev/null 2>&1
+
+# Daily summary and archival at 3 AM
+0 3 * * * /usr/local/sbin/wg-log-manager.sh daily >/dev/null 2>&1
+
+# Weekly system cleanup at 4 AM on Sundays
+0 4 * * 0 /usr/local/sbin/wg-maintenance.sh weekly >/dev/null 2>&1
+
+# Monthly health report at 5 AM on the 1st
+0 5 1 * * /usr/local/sbin/wg-maintenance.sh monthly >/dev/null 2>&1

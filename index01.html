@@ -1,30 +1,42 @@
 <!doctype html>
 <html lang="en">
+
 <head>
+	<base href="./">
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width,initial-scale=1" />
-	<title>Winzige Giganten — Exhibition (iOS flat)</title>
+	<title>Winzige Giganten — Exhibition</title>
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black">
-	<!-- PWA manifest -->
-	<link rel="manifest" href="manifest.json">
+	<!-- PWA manifest for Version 1 -->
+	<link rel="manifest" href="manifest01.json">
+
 	<!-- iOS icons (iOS ignores web manifest icons for homescreen) -->
-	<link rel="apple-touch-icon" href="icon-192.png">
-	<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+	<link rel="apple-touch-icon" href="icons/icon-192.png">
+	<link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
+
+	<!-- iOS splash screens can be added per-device if desired (not included) -->
 	<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+	<!-- App container -->
 	<div class="app" id="app">
+
+		<!-- Video layers: teaser (default visible) and main (hidden until triggered) -->
 		<div class="video-wrap">
-			<video id="teaserVideo" class="visible" muted playsinline preload="auto" loop>
-				<source src="teaser.mp4" type="video/mp4">
+			<video id="teaserVideo" class="visible"playsinline preload="auto" loop>
+				<source src="videos/teaser.mp4" type="video/mp4">
 				Your browser does not support the teaser video.
 			</video>
-			<video id="mainVideo" class="hidden" muted playsinline preload="auto">
-				<source src="main.mp4" type="video/mp4">
+
+			<video id="mainVideo" class="hidden"playsinline preload="auto">
+				<source src="videos/main_01.mp4" type="video/mp4">
 				Your browser does not support the main video.
 			</video>
 		</div>
+
+		<!-- Loading overlay. Shown until both videos are ready or timeout occurs -->
 		<div id="overlay" role="status" aria-live="polite">
 			<div class="spinner" aria-hidden="true"></div>
 			<div class="overlay-msg" id="overlayMsg">Loading media, please wait…</div>
@@ -32,8 +44,13 @@
 				<button id="retryBtn">Retry</button>
 			</div>
 		</div>
+
+		<!-- Fallback Start button (hidden when overlay dismisses) -->
 		<button id="startBtn">Start</button>
+
 	</div>
+
 	<script src="script.js" defer></script>
 </body>
+
 </html>

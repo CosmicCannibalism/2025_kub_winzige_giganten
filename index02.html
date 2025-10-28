@@ -2,13 +2,14 @@
 <html lang="en">
 
 <head>
+	<base href="./">
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width,initial-scale=1" />
-	<title>Winzige Giganten — Exhibition</title>
+	<title>Winzige Giganten — Version 2</title>
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black">
-	<!-- PWA manifest -->
-	<link rel="manifest" href="manifest.json">
+	<!-- PWA manifest for Version 2 -->
+	<link rel="manifest" href="manifest02.json">
 
 	<!-- iOS icons (iOS ignores web manifest icons for homescreen) -->
 	<link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -24,13 +25,13 @@
 
 		<!-- Video layers: teaser (default visible) and main (hidden until triggered) -->
 		<div class="video-wrap">
-			<video id="teaserVideo" class="visible" muted playsinline preload="auto" loop>
+			<video id="teaserVideo" class="visible"playsinline preload="auto" loop>
 				<source src="videos/teaser.mp4" type="video/mp4">
 				Your browser does not support the teaser video.
 			</video>
 
-			<video id="mainVideo" class="hidden" muted playsinline preload="auto">
-				<source src="videos/main.mp4" type="video/mp4">
+			<video id="mainVideo" class="hidden"playsinline preload="auto">
+				<source src="videos/main_02.mp4" type="video/mp4">
 				Your browser does not support the main video.
 			</video>
 		</div>
