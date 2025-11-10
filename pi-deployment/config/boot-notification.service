@@ -1,0 +1,13 @@
+[Unit]
+Description=Boot Notification via Telegram
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=cosmic
+ExecStart=/usr/local/sbin/boot-notification.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

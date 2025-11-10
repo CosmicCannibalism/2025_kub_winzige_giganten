@@ -30,16 +30,16 @@
 				Your browser does not support the teaser video.
 			</video>
 
-			<video id="mainVideo" class="hidden"playsinline preload="auto">
-				<source src="videos/main_01.mp4" type="video/mp4">
-				Your browser does not support the main video.
-			</video>
+		<video id="mainVideo" class="hidden"playsinline preload="metadata">
+			<source src="videos/Robert_Hooke.mp4" type="video/mp4">
+			Your browser does not support the main video.
+		</video>
 		</div>
 
 		<!-- Loading overlay. Shown until both videos are ready or timeout occurs -->
 		<div id="overlay" role="status" aria-live="polite">
 			<div class="spinner" aria-hidden="true"></div>
-			<div class="overlay-msg" id="overlayMsg">Loading media, please wait…</div>
+			<div class="overlay-msg" id="overlayMsg">Preparing exhibition, please wait…</div>
 			<div class="overlay-actions" id="overlayActions" style="display:none">
 				<button id="retryBtn">Retry</button>
 			</div>

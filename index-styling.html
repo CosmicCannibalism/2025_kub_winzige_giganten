@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<base href="./">
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>Winzige Giganten — Styling Test</title>
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!-- PWA manifest -->
+	<link rel="manifest" href="manifest.json">
+
+	<!-- iOS icons (iOS ignores web manifest icons for homescreen) -->
+	<link rel="apple-touch-icon" href="icons/icon-192.png">
+	<link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
+
+	<style>
+		/* Base styles from original */
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		html, body {
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+			background: #000;
+			color: #fff;
+			height: 100%;
+			overflow: hidden;
+		}
+
+		.app {
+			width: 100vw;
+			height: 100vh;
+			position: relative;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.video-wrap {
+			position: relative;
+			width: 100%;
+			height: 100%;
+		}
+
+		.video-wrap video {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			position: absolute;
+			top: 0;
+			left: 0;
+			transition: opacity 0.3s ease;
+		}
+
+		.video-wrap video.visible {
+			opacity: 1;
+			z-index: 1;
+		}
+
+		.video-wrap video.hidden {
+			opacity: 0;
+			z-index: 0;
+		}
+
+		/* Vignette styles */
+		.vignette-overlay {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+			z-index: 2;
+			transition: opacity 0.3s ease;
+		}
+
+		.vignette-teaser {
+			background: radial-gradient(ellipse at center, transparent 0%, transparent 30%, rgba(0,0,0,0.8) 100%);
+		}
+
+		.vignette-main {
+			background: radial-gradient(ellipse at center, transparent 0%, transparent 30%, rgba(0,0,0,0.8) 100%);
+		}
+
+		/* Noise overlay */
+		.noise-overlay {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+			z-index: 3;
+			opacity: 0;
+			background-image: 
+				radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 1px, transparent 1px),
+				radial-gradient(circle at 75% 75%, rgba(255,255,255,0.05) 1px, transparent 1px),
+				radial-gradient(circle at 50% 20%, rgba(255,255,255,0.08) 1px, transparent 1px);
+			background-size: 4px 4px, 6px 6px, 8px 8px;
+			animation: filmGrain 0.2s infinite;
+		}
+
+		@keyframes filmGrain {
+			0%, 100% { transform: translate(0, 0); }
+			10% { transform: translate(-1px, 1px); }
+			20% { transform: translate(1px, -1px); }
+			30% { transform: translate(-1px, -1px); }
+			40% { transform: translate(1px, 1px); }
+			50% { transform: translate(-1px, 0px); }
+			60% { transform: translate(1px, 0px); }
+			70% { transform: translate(0px, -1px); }
+			80% { transform: translate(0px, 1px); }
+			90% { transform: translate(-1px, 1px); }
+		}
+
+		/* Scratches effect */
+		.scratches-overlay {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+			z-index: 4;
+			opacity: 0;
+			background: 
+				linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%),
+				linear-gradient(0deg, transparent 0%, rgba(255,255,255,0.02) 50%, transparent 100%);
+			background-size: 120px 100%, 100% 200px;
+		}
+
+		/* Sepia/vintage color grading */
+		.color-grade-overlay {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+			z-index: 1;
+			mix-blend-mode: multiply;
+			opacity: 0;
+		}
+
+		/* Control Panel Styles */
+		.control-panel {
+			position: fixed;
+			top: 20px;
+			left: 20px;
+			background: rgba(0, 0, 0, 0.95);
+			padding: 20px;
+			border-radius: 10px;
+			border: 1px solid #333;
+			color: white;
+			font-size: 14px;
+			z-index: 1000;
+			width: 320px;
+			max-height: 80vh;
+			overflow-y: auto;
+			transition: opacity 0.3s ease, transform 0.3s ease;
+			transform: translateX(0);
+		}
+
+		.control-panel.hidden {
+			opacity: 0;
+			transform: translateX(-340px);
+			pointer-events: none;
+		}
+
+		.panel-toggle-hint {
+			position: fixed;
+			top: 20px;
+			left: 20px;
+			background: rgba(0, 0, 0, 0.7);
+			color: white;
+			padding: 8px 12px;
+			border-radius: 5px;
+			font-size: 12px;
+			z-index: 999;
+			transition: opacity 0.3s ease;
+		}
+
+		.panel-toggle-hint.fade-out {
+			opacity: 0;
+		}
+
+		.control-panel h3 {
+			margin-bottom: 15px;
+			color: #fff;
+			border-bottom: 1px solid #333;
+			padding-bottom: 5px;
+		}
+
+		.control-group {
+			margin-bottom: 20px;
+			padding: 15px;
+			border: 1px solid #444;
+			border-radius: 5px;
+		}
+
+		.control-group h4 {
+			margin-bottom: 10px;
+			color: #ccc;
+		}
+
+		.control-row {
+			display: flex;
+			align-items: center;
+			margin-bottom: 10px;
+			gap: 10px;
+		}
+
+		.control-row label {
+			min-width: 100px;
+			font-size: 12px;
+		}
+
+		.control-row input[type="range"] {
+			flex: 1;
+		}
+
+		.control-row input[type="color"] {
+			width: 40px;
+			height: 30px;
+			border: none;
+			border-radius: 3px;
+		}
+
+		.control-row input[type="checkbox"] {
+			transform: scale(1.2);
+		}
+
+		.control-row span {
+			min-width: 40px;
+			text-align: right;
+			font-size: 11px;
+			color: #999;
+		}
+
+		.export-section {
+			border-top: 2px solid #555;
+			padding-top: 15px;
+			margin-top: 20px;
+		}
+
+		.export-button {
+			background: #007acc;
+			color: white;
+			border: none;
+			padding: 10px 15px;
+			border-radius: 5px;
+			cursor: pointer;
+			width: 100%;
+			margin-bottom: 10px;
+		}
+
+		.export-button:hover {
+			background: #005a9e;
+		}
+
+		.export-output {
+			background: #222;
+			padding: 10px;
+			border-radius: 5px;
+			font-family: monospace;
+			font-size: 11px;
+			white-space: pre-wrap;
+			max-height: 200px;
+			overflow-y: auto;
+			border: 1px solid #444;
+		}
+
+		/* Loading and other original styles */
+		#overlay {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.8);
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			z-index: 100;
+			transition: opacity 0.3s ease;
+		}
+
+		.spinner {
+			border: 4px solid rgba(255, 255, 255, 0.3);
+			border-top: 4px solid #fff;
+			border-radius: 50%;
+			width: 50px;
+			height: 50px;
+			animation: spin 1s linear infinite;
+			margin-bottom: 20px;
+		}
+
+		@keyframes spin {
+			0% { transform: rotate(0deg); }
+			100% { transform: rotate(360deg); }
+		}
+
+		.overlay-msg {
+			font-size: 18px;
+			margin-bottom: 20px;
+		}
+
+		#startBtn {
+			position: absolute;
+			bottom: 50px;
+			left: 50%;
+			transform: translateX(-50%);
+			background: rgba(255, 255, 255, 0.2);
+			color: #fff;
+			border: 2px solid #fff;
+			padding: 15px 30px;
+			font-size: 18px;
+			border-radius: 5px;
+			cursor: pointer;
+			z-index: 10;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- App container -->
+	<div class="app" id="app">
+
+		<!-- Video layers: teaser (default visible) and main (hidden until triggered) -->
+		<div class="video-wrap">
+			<video id="teaserVideo" class="visible" playsinline preload="auto" loop>
+				<source src="videos/teaser.mp4" type="video/mp4">
+				Your browser does not support the teaser video.
+			</video>
+
+			<video id="mainVideo" class="hidden" playsinline preload="auto">
+				<source src="videos/Pasteur.mp4" type="video/mp4">
+				Your browser does not support the main video.
+			</video>
+
+			<!-- Cinematic overlays -->
+			<div id="colorGrade" class="color-grade-overlay"></div>
+			<div id="vignetteTeaser" class="vignette-overlay vignette-teaser"></div>
+			<div id="vignetteMain" class="vignette-overlay vignette-main" style="opacity: 0;"></div>
+			<div id="noiseOverlay" class="noise-overlay"></div>
+			<div id="scratchesOverlay" class="scratches-overlay"></div>
+		</div>
+
+		<!-- Panel Toggle Hint -->
+		<div class="panel-toggle-hint" id="panelHint">Press 'H' to toggle panel</div>
+
+		<!-- Control Panel -->
+		<div class="control-panel" id="controlPanel">
+			<h3>🎨 Cinematic Styling <span style="float: right; font-size: 12px; opacity: 0.7;">[H] to hide</span></h3>
+			
+			<!-- Global Toggles -->
+			<div class="control-group">
+				<h4>🌍 Global Controls</h4>
+				<div class="control-row">
+					<label>Teaser Effects:</label>
+					<input type="checkbox" id="globalTeaserToggle" checked>
+					<span style="color: #666; font-size: 11px;">All teaser styling</span>
+				</div>
+				<div class="control-row">
+					<label>Main Effects:</label>
+					<input type="checkbox" id="globalMainToggle" checked>
+					<span style="color: #666; font-size: 11px;">All main video styling</span>
+				</div>
+			</div>
+
+			<!-- Teaser Video Controls -->
+			<div class="control-group">
+				<h4>📹 Teaser Vignette</h4>
+				<div class="control-row">
+					<label>Enable:</label>
+					<input type="checkbox" id="teaserEnable" checked>
+				</div>
+				<div class="control-row">
+					<label>Color:</label>
+					<input type="color" id="teaserColor" value="#000000">
+				</div>
+				<div class="control-row">
+					<label>Strength:</label>
+					<input type="range" id="teaserStrength" min="0" max="100" value="30">
+					<span id="teaserStrengthVal">30%</span>
+				</div>
+				<div class="control-row">
+					<label>Opacity:</label>
+					<input type="range" id="teaserOpacity" min="0" max="100" value="80">
+					<span id="teaserOpacityVal">80%</span>
+				</div>
+			</div>
+
+			<!-- Main Video Controls -->
+			<div class="control-group">
+				<h4>🎬 Main Vignette</h4>
+				<div class="control-row">
+					<label>Enable:</label>
+					<input type="checkbox" id="mainEnable" checked>
+				</div>
+				<div class="control-row">
+					<label>Color:</label>
+					<input type="color" id="mainColor" value="#000000">
+				</div>
+				<div class="control-row">
+					<label>Strength:</label>
+					<input type="range" id="mainStrength" min="0" max="100" value="30">
+					<span id="mainStrengthVal">30%</span>
+				</div>
+				<div class="control-row">
+					<label>Opacity:</label>
+					<input type="range" id="mainOpacity" min="0" max="100" value="80">
+					<span id="mainOpacityVal">80%</span>
+				</div>
+			</div>
+
+			<!-- Cinematic Effects -->
+			<div class="control-group">
+				<h4>🎞️ Cinematic Effects</h4>
+				<div class="control-row">
+					<label>Film Grain:</label>
+					<input type="checkbox" id="noiseEnable">
+				</div>
+				<div class="control-row">
+					<label>Noise Intensity:</label>
+					<input type="range" id="noiseIntensity" min="0" max="100" value="30">
+					<span id="noiseIntensityVal">30%</span>
+				</div>
+				<div class="control-row">
+					<label>Scratches:</label>
+					<input type="checkbox" id="scratchesEnable">
+				</div>
+				<div class="control-row">
+					<label>Scratch Opacity:</label>
+					<input type="range" id="scratchesOpacity" min="0" max="100" value="20">
+					<span id="scratchesOpacityVal">20%</span>
+				</div>
+				<div class="control-row">
+					<label>Vintage Grade:</label>
+					<input type="checkbox" id="gradeEnable">
+				</div>
+				<div class="control-row">
+					<label>Grade Color:</label>
+					<input type="color" id="gradeColor" value="#8B4513">
+				</div>
+				<div class="control-row">
+					<label>Grade Intensity:</label>
+					<input type="range" id="gradeIntensity" min="0" max="100" value="15">
+					<span id="gradeIntensityVal">15%</span>
+				</div>
+			</div>
+
+			<!-- Export Section -->
+			<div class="export-section">
+				<button class="export-button" onclick="exportSettings()">📋 Export CSS Settings</button>
+				<div class="export-output" id="exportOutput">Click export to generate CSS...</div>
+			</div>
+		</div>
+
+		<!-- Loading overlay -->
+		<div id="overlay" role="status" aria-live="polite">
+			<div class="spinner" aria-hidden="true"></div>
+			<div class="overlay-msg" id="overlayMsg">Loading media, please wait…</div>
+		</div>
+
+		<!-- Fallback Start button -->
+		<button id="startBtn">Start</button>
+	</div>
+
+	<script>
+		// Cinematic control system - dramatic high contrast settings
+		let cinematicSettings = {
+			teaser: {
+				enabled: true,
+				color: '#000000',
+				strength: 67,
+				opacity: 21
+			},
+			main: {
+				enabled: true,
+				color: '#000000', 
+				strength: 57,
+				opacity: 100
+			},
+			effects: {
+				noise: {
+					enabled: true,
+					intensity: 18
+				},
+				scratches: {
+					enabled: true,
+					opacity: 100
+				},
+				grade: {
+					enabled: true,
+					color: '#ffffff',
+					intensity: 100
+				}
+			},
+			global: {
+				teaserEffectsEnabled: true,
+				mainEffectsEnabled: true
+			}
+		};
+
+		// Initialize controls
+		function initControls() {
+			// Set default values from cinematicSettings
+			document.getElementById('teaserEnable').checked = cinematicSettings.teaser.enabled;
+			document.getElementById('teaserColor').value = cinematicSettings.teaser.color;
+			document.getElementById('teaserStrength').value = cinematicSettings.teaser.strength;
+			document.getElementById('teaserOpacity').value = cinematicSettings.teaser.opacity;
+
+			document.getElementById('mainEnable').checked = cinematicSettings.main.enabled;
+			document.getElementById('mainColor').value = cinematicSettings.main.color;
+			document.getElementById('mainStrength').value = cinematicSettings.main.strength;
+			document.getElementById('mainOpacity').value = cinematicSettings.main.opacity;
+
+			document.getElementById('noiseEnable').checked = cinematicSettings.effects.noise.enabled;
+			document.getElementById('noiseIntensity').value = cinematicSettings.effects.noise.intensity;
+			document.getElementById('scratchesEnable').checked = cinematicSettings.effects.scratches.enabled;
+			document.getElementById('scratchesOpacity').value = cinematicSettings.effects.scratches.opacity;
+			document.getElementById('gradeEnable').checked = cinematicSettings.effects.grade.enabled;
+			document.getElementById('gradeColor').value = cinematicSettings.effects.grade.color;
+			document.getElementById('gradeIntensity').value = cinematicSettings.effects.grade.intensity;
+
+			document.getElementById('globalTeaserToggle').checked = cinematicSettings.global.teaserEffectsEnabled;
+			document.getElementById('globalMainToggle').checked = cinematicSettings.global.mainEffectsEnabled;
+
+			// Global controls
+			document.getElementById('globalTeaserToggle').addEventListener('change', updateEffects);
+			document.getElementById('globalMainToggle').addEventListener('change', updateEffects);
+
+			// Vignette controls
+			document.getElementById('teaserEnable').addEventListener('change', updateEffects);
+			document.getElementById('teaserColor').addEventListener('input', updateEffects);
+			document.getElementById('teaserStrength').addEventListener('input', updateEffects);
+			document.getElementById('teaserOpacity').addEventListener('input', updateEffects);
+
+			document.getElementById('mainEnable').addEventListener('change', updateEffects);
+			document.getElementById('mainColor').addEventListener('input', updateEffects);
+			document.getElementById('mainStrength').addEventListener('input', updateEffects);
+			document.getElementById('mainOpacity').addEventListener('input', updateEffects);
+
+			// Cinematic effects controls
+			document.getElementById('noiseEnable').addEventListener('change', updateEffects);
+			document.getElementById('noiseIntensity').addEventListener('input', updateEffects);
+			document.getElementById('scratchesEnable').addEventListener('change', updateEffects);
+			document.getElementById('scratchesOpacity').addEventListener('input', updateEffects);
+			document.getElementById('gradeEnable').addEventListener('change', updateEffects);
+			document.getElementById('gradeColor').addEventListener('input', updateEffects);
+			document.getElementById('gradeIntensity').addEventListener('input', updateEffects);
+
+			updateEffects();
+		}
+
+		function updateEffects() {
+			// Get vignette values
+			const teaserEnable = document.getElementById('teaserEnable').checked;
+			const teaserColor = document.getElementById('teaserColor').value;
+			const teaserStrength = document.getElementById('teaserStrength').value;
+			const teaserOpacity = document.getElementById('teaserOpacity').value;
+
+			const mainEnable = document.getElementById('mainEnable').checked;
+			const mainColor = document.getElementById('mainColor').value;
+			const mainStrength = document.getElementById('mainStrength').value;
+			const mainOpacity = document.getElementById('mainOpacity').value;
+
+			// Get global toggles
+			const globalTeaserEnabled = document.getElementById('globalTeaserToggle').checked;
+			const globalMainEnabled = document.getElementById('globalMainToggle').checked;
+
+			// Get effects values
+			const noiseEnable = document.getElementById('noiseEnable').checked;
+			const noiseIntensity = document.getElementById('noiseIntensity').value;
+			const scratchesEnable = document.getElementById('scratchesEnable').checked;
+			const scratchesOpacity = document.getElementById('scratchesOpacity').value;
+			const gradeEnable = document.getElementById('gradeEnable').checked;
+			const gradeColor = document.getElementById('gradeColor').value;
+			const gradeIntensity = document.getElementById('gradeIntensity').value;
+
+			// Update value displays
+			document.getElementById('teaserStrengthVal').textContent = teaserStrength + '%';
+			document.getElementById('teaserOpacityVal').textContent = teaserOpacity + '%';
+			document.getElementById('mainStrengthVal').textContent = mainStrength + '%';
+			document.getElementById('mainOpacityVal').textContent = mainOpacity + '%';
+			document.getElementById('noiseIntensityVal').textContent = noiseIntensity + '%';
+			document.getElementById('scratchesOpacityVal').textContent = scratchesOpacity + '%';
+			document.getElementById('gradeIntensityVal').textContent = gradeIntensity + '%';
+
+			// Save settings
+			cinematicSettings.teaser = {
+				enabled: teaserEnable,
+				color: teaserColor,
+				strength: parseInt(teaserStrength),
+				opacity: parseInt(teaserOpacity)
+			};
+			cinematicSettings.main = {
+				enabled: mainEnable,
+				color: mainColor,
+				strength: parseInt(mainStrength),
+				opacity: parseInt(mainOpacity)
+			};
+			cinematicSettings.effects = {
+				noise: {
+					enabled: noiseEnable,
+					intensity: parseInt(noiseIntensity)
+				},
+				scratches: {
+					enabled: scratchesEnable,
+					opacity: parseInt(scratchesOpacity)
+				},
+				grade: {
+					enabled: gradeEnable,
+					color: gradeColor,
+					intensity: parseInt(gradeIntensity)
+				}
+			};
+			cinematicSettings.global = {
+				teaserEffectsEnabled: globalTeaserEnabled,
+				mainEffectsEnabled: globalMainEnabled
+			};
+
+			// Apply to DOM
+			applyVignetteStyle('vignetteTeaser', cinematicSettings.teaser);
+			applyVignetteStyle('vignetteMain', cinematicSettings.main);
+			applyCinematicEffects();
+		}
+
+		function hexToRgb(hex) {
+			const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+			return result ? {
+				r: parseInt(result[1], 16),
+				g: parseInt(result[2], 16),
+				b: parseInt(result[3], 16)
+			} : null;
+		}
+
+		function applyVignetteStyle(elementId, settings) {
+			const element = document.getElementById(elementId);
+			if (!element) return;
+
+			// Check global toggle
+			const isTeaser = elementId === 'vignetteTeaser';
+			const globalEnabled = isTeaser ? 
+				cinematicSettings.global.teaserEffectsEnabled : 
+				cinematicSettings.global.mainEffectsEnabled;
+
+			if (!settings.enabled || !globalEnabled) {
+				element.style.background = 'none';
+				return;
+			}
+
+			const rgb = hexToRgb(settings.color);
+			const opacityDecimal = settings.opacity / 100;
+
+			const gradient = `radial-gradient(ellipse at center, 
+				transparent 0%, 
+				transparent ${settings.strength}%, 
+				rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacityDecimal}) 100%)`;
+
+			element.style.background = gradient;
+		}
+
+		function exportSettings() {
+			const css = generateCinematicCSSSettings(cinematicSettings);
+			const output = document.getElementById('exportOutput');
+			output.textContent = css;
+			
+			// Copy to clipboard
+			navigator.clipboard.writeText(css).then(() => {
+				const button = document.querySelector('.export-button');
+				const originalText = button.textContent;
+				button.textContent = '✅ Copied to clipboard!';
+				setTimeout(() => {
+					button.textContent = originalText;
+				}, 2000);
+			});
+		}
+
+		function applyCinematicEffects() {
+			const settings = cinematicSettings.effects;
+			const currentVideoIsTeaser = !isMainVideoPlaying;
+			
+			// Check which global toggle applies to current video
+			const globalEnabled = currentVideoIsTeaser ? 
+				cinematicSettings.global.teaserEffectsEnabled : 
+				cinematicSettings.global.mainEffectsEnabled;
+
+			// Film grain/noise
+			const noiseOverlay = document.getElementById('noiseOverlay');
+			if (settings.noise.enabled && globalEnabled) {
+				noiseOverlay.style.opacity = settings.noise.intensity / 100;
+			} else {
+				noiseOverlay.style.opacity = '0';
+			}
+
+			// Scratches
+			const scratchesOverlay = document.getElementById('scratchesOverlay');
+			if (settings.scratches.enabled && globalEnabled) {
+				scratchesOverlay.style.opacity = settings.scratches.opacity / 100;
+			} else {
+				scratchesOverlay.style.opacity = '0';
+			}
+
+			// Color grading
+			const colorGrade = document.getElementById('colorGrade');
+			if (settings.grade.enabled && globalEnabled) {
+				const rgb = hexToRgb(settings.grade.color);
+				const opacity = settings.grade.intensity / 100;
+				colorGrade.style.background = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})`;
+				colorGrade.style.opacity = '1';
+			} else {
+				colorGrade.style.opacity = '0';
+			}
+		}
+
+		function generateCinematicCSSSettings(settings) {
+			let css = `/* Cinematic Settings Export */\n\n`;
+
+			// Vignettes
+			if (settings.teaser.enabled) {
+				const tRgb = hexToRgb(settings.teaser.color);
+				const tOpacity = settings.teaser.opacity / 100;
+				css += `.vignette-teaser {\n`;
+				css += `    background: radial-gradient(ellipse at center, transparent 0%, transparent ${settings.teaser.strength}%, rgba(${tRgb.r}, ${tRgb.g}, ${tRgb.b}, ${tOpacity}) 100%);\n`;
+				css += `}\n\n`;
+			} else {
+				css += `.vignette-teaser { background: none; }\n\n`;
+			}
+
+			if (settings.main.enabled) {
+				const mRgb = hexToRgb(settings.main.color);
+				const mOpacity = settings.main.opacity / 100;
+				css += `.vignette-main {\n`;
+				css += `    background: radial-gradient(ellipse at center, transparent 0%, transparent ${settings.main.strength}%, rgba(${mRgb.r}, ${mRgb.g}, ${mRgb.b}, ${mOpacity}) 100%);\n`;
+				css += `}\n\n`;
+			} else {
+				css += `.vignette-main { background: none; }\n\n`;
+			}
+
+			// Cinematic effects
+			css += `/* Cinematic Effects */\n`;
+			
+			if (settings.effects.noise.enabled) {
+				css += `.noise-overlay {\n    opacity: ${settings.effects.noise.intensity / 100};\n}\n\n`;
+			} else {
+				css += `.noise-overlay { opacity: 0; }\n\n`;
+			}
+
+			if (settings.effects.scratches.enabled) {
+				css += `.scratches-overlay {\n    opacity: ${settings.effects.scratches.opacity / 100};\n}\n\n`;
+			} else {
+				css += `.scratches-overlay { opacity: 0; }\n\n`;
+			}
+
+			if (settings.effects.grade.enabled) {
+				const gRgb = hexToRgb(settings.effects.grade.color);
+				const gOpacity = settings.effects.grade.intensity / 100;
+				css += `.color-grade-overlay {\n`;
+				css += `    background: rgba(${gRgb.r}, ${gRgb.g}, ${gRgb.b}, ${gOpacity});\n`;
+				css += `    opacity: 1;\n}\n\n`;
+			} else {
+				css += `.color-grade-overlay { opacity: 0; }\n\n`;
+			}
+
+			// Settings object for reference
+			css += `/* Settings Object for Reference:\n`;
+			css += `${JSON.stringify(settings, null, 2)}\n*/`;
+
+			return css;
+		}
+
+		// Original PWA functionality
+		const teaserVideo = document.getElementById('teaserVideo');
+		const mainVideo = document.getElementById('mainVideo');
+		const vignetteTeaser = document.getElementById('vignetteTeaser');
+		const vignetteMain = document.getElementById('vignetteMain');
+		const overlay = document.getElementById('overlay');
+		const overlayMsg = document.getElementById('overlayMsg');
+		const startBtn = document.getElementById('startBtn');
+
+		let isMainVideoPlaying = false;
+		let mediaReadyTimeout;
+		let bothVideosReady = false;
+
+		// Video state management
+		function showMainVideo() {
+			if (isMainVideoPlaying) return;
+			isMainVideoPlaying = true;
+
+			teaserVideo.classList.remove('visible');
+			teaserVideo.classList.add('hidden');
+			mainVideo.classList.remove('hidden');
+			mainVideo.classList.add('visible');
+
+			// Switch vignettes
+			vignetteTeaser.style.opacity = '0';
+			vignetteMain.style.opacity = '1';
+
+			// Update cinematic effects for main video
+			applyCinematicEffects();
+
+			mainVideo.currentTime = 0;
+			mainVideo.play().catch(e => console.log('Play failed:', e));
+		}
+
+		function showTeaserVideo() {
+			isMainVideoPlaying = false;
+
+			mainVideo.classList.remove('visible');
+			mainVideo.classList.add('hidden');
+			teaserVideo.classList.remove('hidden');
+			teaserVideo.classList.add('visible');
+
+			// Switch vignettes
+			vignetteMain.style.opacity = '0';
+			vignetteTeaser.style.opacity = '1';
+
+			// Update cinematic effects for teaser video
+			applyCinematicEffects();
+
+			mainVideo.pause();
+			teaserVideo.play().catch(e => console.log('Play failed:', e));
+		}
+
+		// Event listeners
+		mainVideo.addEventListener('ended', showTeaserVideo);
+
+		// Panel toggle functionality
+		let panelVisible = true;
+		
+		function togglePanel() {
+			const panel = document.getElementById('controlPanel');
+			const hint = document.getElementById('panelHint');
+			
+			panelVisible = !panelVisible;
+			
+			if (panelVisible) {
+				panel.classList.remove('hidden');
+				hint.style.display = 'none';
+			} else {
+				panel.classList.add('hidden');
+				hint.style.display = 'block';
+				// Auto-hide hint after 3 seconds
+				setTimeout(() => {
+					hint.classList.add('fade-out');
+				}, 3000);
+			}
+		}
+
+		// Keyboard triggers
+		document.addEventListener('keydown', (event) => {
+			if (event.code === 'Space') {
+				event.preventDefault();
+				if (!isMainVideoPlaying && bothVideosReady) {
+					showMainVideo();
+				}
+			}
+			
+			// Toggle panel with H key
+			if (event.code === 'KeyH') {
+				event.preventDefault();
+				togglePanel();
+			}
+		});
+
+		// Touch/click trigger
+		document.addEventListener('click', (event) => {
+			// Ignore clicks on control panel
+			if (event.target.closest('.control-panel')) return;
+			
+			if (!isMainVideoPlaying && bothVideosReady) {
+				showMainVideo();
+			}
+		});
+
+		// Media loading
+		let teaserReady = false;
+		let mainReady = false;
+
+		function checkMediaReady() {
+			if (teaserReady && mainReady && !bothVideosReady) {
+				bothVideosReady = true;
+				clearTimeout(mediaReadyTimeout);
+				hideOverlay();
+				startBtn.style.display = 'none';
+				teaserVideo.play().catch(e => console.log('Teaser autoplay failed:', e));
+			}
+		}
+
+		function hideOverlay() {
+			overlay.style.opacity = '0';
+			setTimeout(() => {
+				overlay.style.display = 'none';
+			}, 300);
+		}
+
+		// Video ready events
+		teaserVideo.addEventListener('canplaythrough', () => {
+			teaserReady = true;
+			checkMediaReady();
+		});
+
+		mainVideo.addEventListener('canplaythrough', () => {
+			mainReady = true;
+			checkMediaReady();
+		});
+
+		// Fallback timeout
+		mediaReadyTimeout = setTimeout(() => {
+			console.log('Media loading timeout, proceeding anyway');
+			bothVideosReady = true;
+			hideOverlay();
+			startBtn.style.display = 'block';
+		}, 10000);
+
+		// Start button fallback
+		startBtn.addEventListener('click', () => {
+			bothVideosReady = true;
+			hideOverlay();
+			startBtn.style.display = 'none';
+			teaserVideo.play().catch(e => console.log('Manual play failed:', e));
+		});
+
+		// Initialize on load
+		document.addEventListener('DOMContentLoaded', () => {
+			initControls();
+			
+			// Hide hint after 5 seconds initially
+			setTimeout(() => {
+				const hint = document.getElementById('panelHint');
+				hint.classList.add('fade-out');
+			}, 5000);
+		});
+	</script>
+</body>
+</html>
