@@ -17,60 +17,15 @@ console.log('Winzige Giganten script.js loaded — version 2025-09-27');
   let started = false;
   let fallbackTimer = null;
   let mainVideoPreloaded = false;
-  let isOnline = navigator.onLine;
-  let videoBlobsLoaded = false;
-  let teaserBlobUrl = null;
-  let mainBlobUrl = null;
+  let allVideosCached = false; // Track if Service Worker cached all videos
 
   // Track online/offline status
   window.addEventListener('online', () => {
-    isOnline = true;
     console.log('Network: ONLINE');
   });
   window.addEventListener('offline', () => {
-    isOnline = false;
     console.log('Network: OFFLINE - using cached videos');
   });
-
-  // Load videos as Blobs for true offline capability
-  async function loadVideosAsBlobs() {
-    if (videoBlobsLoaded) return;
-    
-    try {
-      console.log('Loading videos as Blobs for offline capability...');
-      
-      // Get video sources from DOM
-      const teaserSrc = teaser.querySelector('source').src;
-      const mainSrc = main.querySelector('source').src;
-      
-      // Fetch videos (from cache or network)
-      const [teaserResponse, mainResponse] = await Promise.all([
-        fetch(teaserSrc),
-        fetch(mainSrc)
-      ]);
-      
-      // Convert to Blobs
-      const [teaserBlob, mainBlob] = await Promise.all([
-        teaserResponse.blob(),
-        mainResponse.blob()
-      ]);
-      
-      // Create Object URLs
-      teaserBlobUrl = URL.createObjectURL(teaserBlob);
-      mainBlobUrl = URL.createObjectURL(mainBlob);
-      
-      // Replace video sources with Blob URLs
-      teaser.src = teaserBlobUrl;
-      main.src = mainBlobUrl;
-      
-      videoBlobsLoaded = true;
-      console.log('Videos loaded as Blobs - true offline mode enabled');
-      
-    } catch (err) {
-      console.error('Failed to load videos as Blobs:', err);
-      // Continue with normal src - at least online will work
-    }
-  }
 
 const overlayMsg = document.getElementById('overlayMsg');
 function showStartButton() {
@@ -85,7 +40,8 @@ function showStartButton() {
   startBtn.setAttribute('aria-hidden', 'false');
 }
 function checkReady() {
-  if (teaserReady && mainReady) {
+  // ONLY show button when ALL videos are cached by Service Worker
+  if (allVideosCached) {
     showStartButton();
   }
 }
@@ -94,61 +50,33 @@ function checkReady() {
 function preloadMainVideo() {
   if (mainVideoPreloaded) return;
   mainVideoPreloaded = true;
-  console.log('Preloading main video in background (aggressive warm-up)');
+  console.log('Preloading main video in background');
   
-  // Strategy: "Prime" the video decoder by playing a tiny bit muted
-  // This forces browser to allocate decoder resources and buffer data
+  // Just set preload - Service Worker has already cached it
   main.preload = 'auto';
-  main.muted = true;
-  main.currentTime = 0;
-  
-  // Only call load() if online or on first load - cached videos don't need it
-  if (isOnline) {
-    main.load();
-  }
-  
-  // Play a tiny bit (0.1s) then pause - this "warms up" the decoder
-  const warmUpVideo = () => {
-    main.play().then(() => {
-      console.log('Main video decoder warmed up');
-      setTimeout(() => {
-        main.pause();
-        main.currentTime = 0;
-        main.muted = false;
-        console.log('Main video ready for instant playback');
-      }, 100); // Play for 100ms then reset
-    }).catch(err => {
-      console.warn('Video warm-up failed:', err);
-      // Don't try load() again - video should be cached
-      main.muted = false;
-    });
-  };
-  
-  // If video not ready yet, wait for canplay event
-  if (main.readyState >= 2) {
-    warmUpVideo();
-  } else {
-    main.addEventListener('canplay', warmUpVideo, { once: true });
-  }
+  // DO NOT call load() - causes offline issues!
 }
 
   teaser.addEventListener('canplaythrough', ()=>{
     teaserReady = true;
     checkReady();
-    // Load videos as Blobs for offline capability
-    loadVideosAsBlobs();
     // Start preloading main video in background once teaser is ready
     preloadMainVideo();
   });
+
   main.addEventListener('canplaythrough', ()=>{
     mainReady = true;
     checkReady();
   });
 
-  // Fallback: show Start button after 10 seconds if videos aren't ready
+  // Fallback: show Start button after 30 seconds if Service Worker doesn't respond
   fallbackTimer = setTimeout(()=>{
-    if (!teaserReady || !mainReady) showStartButton();
-  }, 10000);
+    console.warn('Timeout: Service Worker did not complete caching, showing button anyway');
+    if (!allVideosCached) {
+      allVideosCached = true;
+      showStartButton();
+    }
+  }, 30000); // 30 seconds for large videos over WiFi
 
   // Start button click: hide overlay, hide button, show and play teaser
   startBtn.addEventListener('click', ()=>{
@@ -168,6 +96,14 @@ function preloadMainVideo() {
     teaser.play().catch((err)=>{
       console.warn('Teaser autoplay failed:', err);
     });
+  });
+
+  // CRITICAL FIX: Manual loop fallback for iOS PWA mode
+  // iOS PWA ignores loop attribute - manual restart needed
+  teaser.addEventListener('ended', () => {
+    console.log('Teaser ended - manual loop restart');
+    teaser.currentTime = 0;
+    teaser.play().catch(err => console.warn('Manual loop play failed:', err));
   });
 
   // When main video ends, return to teaser
@@ -192,38 +128,33 @@ function preloadMainVideo() {
     if(!overlay.classList.contains('hidden')) return;
     e.preventDefault();
     if(teaser.classList.contains('visible') && !main.classList.contains('visible')){
-      // Switch from teaser to main - pause teaser first to prevent double playback
+      // Switch from teaser to main
       teaser.pause();
-      // Video is already preloaded and warmed up - just reset position and play
-      main.pause(); // Ensure clean state
+      teaser.currentTime = 0; // Reset teaser position
       main.currentTime = 0;
-      main.muted = false; // Ensure unmuted (in case warm-up left it muted)
       main.classList.add('visible'); main.classList.remove('hidden');
       teaser.classList.remove('visible'); teaser.classList.add('hidden');
-      // Small delay to ensure DOM updates before play
-      setTimeout(() => {
-        main.play().catch((err)=>{
-          console.warn('Main video play failed:', err);
-        });
-      }, 10);
+      // NO load() - video already cached by Service Worker
+      main.play().catch((err)=>{
+        console.warn('Main video play failed:', err);
+      });
     } else if(main.classList.contains('visible')){
-      // Restart main - ensure it's not paused, reset position
-      main.pause(); // Pause first for clean reset
+      // Restart main video
+      main.pause(); // Pause first before reset
       main.currentTime = 0;
-      // Immediate restart
-      setTimeout(() => {
-        main.play().catch((err)=>{
-          console.warn('Main video restart failed:', err);
-        });
-      }, 10);
+      // NO load() - just restart from cached video
+      main.play().catch((err)=>{
+        console.warn('Main video restart failed:', err);
+      });
     }
   });
 
   // Register service worker with progress tracking
+  // CRITICAL: Register immediately, not on 'load' event (which waits for video preload)
   if ('serviceWorker' in navigator) {
     // Listen for messages from Service Worker (cache progress)
     navigator.serviceWorker.addEventListener('message', (event) => {
-      const { type, message, progress } = event.data;
+      const { type, message, progress, error } = event.data;
       
       if (type === 'CACHE_PROGRESS') {
         if (overlayMsg) {
@@ -235,25 +166,36 @@ function preloadMainVideo() {
           overlayMsg.textContent = 'Ready to start!';
         }
         console.log('All media cached successfully');
-        // Force check ready state after cache is complete
+        // Mark videos as cached and show start button
+        allVideosCached = true;
         setTimeout(checkReady, 500);
+      } else if (type === 'CACHE_INCOMPLETE') {
+        if (overlayMsg) {
+          overlayMsg.textContent = 'Warning: Some videos failed to cache';
+        }
+        console.warn('CACHE_INCOMPLETE:', message);
+        // Still show button after delay, but log warning
+        allVideosCached = true;
+        setTimeout(checkReady, 2000);
+      } else if (type === 'CACHE_ERROR') {
+        console.error('Cache error:', message, error);
       }
     });
     
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').then(reg => {
-        console.log('ServiceWorker registered', reg.scope);
-        
-        // If SW is already active (not first install), videos should be cached
-        if (reg.active && !reg.installing) {
-          console.log('SW already active, videos should be cached');
-          setTimeout(checkReady, 500);
-        }
-      }).catch(err => {
-        console.warn('ServiceWorker registration failed', err);
-        // Still allow app to start even if SW fails
-        setTimeout(() => showStartButton(), 5000);
-      });
+    // Register Service Worker immediately (don't wait for window 'load')
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      console.log('ServiceWorker registered', reg.scope);
+      
+      // If SW is already active (not first install), videos should be cached
+      if (reg.active && !reg.installing) {
+        console.log('SW already active, videos should be cached');
+        allVideosCached = true; // Mark as cached if SW already installed
+        setTimeout(checkReady, 500);
+      }
+    }).catch(err => {
+      console.warn('ServiceWorker registration failed', err);
+      // Still allow app to start even if SW fails
+      setTimeout(() => showStartButton(), 5000);
     });
   } else {
     // No service worker support - show start button after timeout

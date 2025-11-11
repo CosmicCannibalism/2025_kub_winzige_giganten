@@ -69,9 +69,64 @@ Jedes iPad braucht seine eigene Version - beim ersten Aufruf entsprechende URL v
 
 ---
 
+## 3. iPad Ausstellungs-Konfiguration
+
+**Hardware**: iPad Air (Model A2316), iOS 15.6.1+
+
+### 3.1 Display-Einstellungen
+- **Einstellungen** → **Anzeige & Helligkeit**
+  - **Automatische Sperre** → Nie
+  - **Helligkeit** → Maximum (oder gewünschter Ausstellungswert)
+  - **True Tone** → Aus
+  - **Night Shift** → Aus
+
+### 3.2 Mitteilungen deaktivieren
+- **Einstellungen** → **Mitteilungen**
+  - **Vorschauen zeigen** → Nie
+  - Alle App-Mitteilungen deaktivieren
+
+### 3.3 Kontrollzentrum & Siri
+- **Einstellungen** → **Kontrollzentrum**
+  - **In Apps** → Aus
+- **Einstellungen** → **Siri & Suchen**
+  - **Auf "Hey Siri" achten** → Aus
+  - **Standby-Taste für Siri drücken** → Aus
+
+### 3.4 Updates & Hintergrund
+- **Einstellungen** → **Allgemein** → **Softwareupdate**
+  - **Automatische Updates** → Aus
+- **Einstellungen** → **Allgemein** → **Hintergrundaktualisierung** → Aus
+- **Einstellungen** → **WLAN**
+  - **Auf Netzwerke hinweisen** → Aus
+
+### 3.5 Geführter Zugriff (Kiosk-Modus)
+**Wichtigster Schritt für Ausstellungsbetrieb!**
+
+- **Einstellungen** → **Bedienungshilfen** → **Geführter Zugriff**
+  - **Geführter Zugriff** → Ein
+  - **Code-Einstellungen** → Code festlegen (merken!)
+  - **Zeitlimits** → Aus
+  - **Automatische Sperre des Displays** → Nie
+
+### 3.6 Geführten Zugriff starten
+**Wenn PWA im Vollbild läuft:**
+1. **3× Standby-Taste drücken** (Power-Button oben rechts)
+2. Menü "Geführter Zugriff" erscheint
+3. Optional: Touch-Bereiche deaktivieren (nicht empfohlen, da Space-Trigger benötigt wird)
+4. **"Starten"** drücken
+
+**Ergebnis**: iPad ist jetzt im Kiosk-Modus gesperrt
+- Besucher können App nicht verlassen
+- Keine Home-Geste oder Kontrollzentrum
+- Display bleibt dauerhaft an
+
+### 3.7 Geführten Zugriff beenden
+- **3× Standby-Taste drücken** → Code eingeben
+- Oder: **"Beenden"** links oben (falls sichtbar)
+
 ---
 
-## 3. Bedienung der Ausstellung
+## 4. Bedienung der Ausstellung
 
 ### Normalbetrieb
 1. **Teaser-Video** läuft automatisch in Endlosschleife

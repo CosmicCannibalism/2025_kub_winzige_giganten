@@ -19,9 +19,12 @@ const unsigned long debounceDelay = 50;  // Debounce time in milliseconds
 const unsigned long cooldownDelay = 200; // Cooldown time after valid press (in ms)
 bool lastButtonState = HIGH;             // Start with HIGH because of pull-up
 const int relayPin = 7;                  // Relay pin (change as needed)
+const unsigned long relayDelay = 1000;   // Delay before relay opens (1000ms)
 const unsigned long relayDuration = 155000; // Relay open duration for Robert Hooke video (155s)
+unsigned long buttonPressedAt = 0;
 unsigned long relayOpenedAt = 0;
 bool relayOpen = false;
+bool relayPending = false;
 unsigned long lastDebounceTime = 0;
 
 void setup() {
@@ -41,7 +44,7 @@ void loop() {
     lastButtonState = reading;
   }
 
-  // On valid button press: send Space, open relay, reset timer
+  // On valid button press: send Space, schedule relay open, reset timer
   if (reading == LOW &&
       (currentTime - lastDebounceTime > debounceDelay) &&
       !buttonLocked &&
@@ -49,15 +52,22 @@ void loop() {
     Keyboard.press(' ');
     delay(30);
     Keyboard.release(' ');
-    digitalWrite(relayPin, HIGH);
-    relayOpenedAt = currentTime;
-    relayOpen = true;
+    buttonPressedAt = currentTime;
+    relayPending = true;
     buttonLocked = true;
   }
 
   // Reset cooldown lock when button is released
   if (reading == HIGH) {
     buttonLocked = false;
+  }
+
+  // Open relay after delay
+  if (relayPending && (currentTime - buttonPressedAt >= relayDelay)) {
+    digitalWrite(relayPin, HIGH);
+    relayOpenedAt = currentTime;
+    relayOpen = true;
+    relayPending = false;
   }
 
   // Close relay after duration
