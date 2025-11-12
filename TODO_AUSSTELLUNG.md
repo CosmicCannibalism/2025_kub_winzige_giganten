@@ -19,13 +19,17 @@
 ## 🔴 KRITISCH - JETZT ERLEDIGEN
 
 ### 1. 🔒 BACKUP: Kompletter aktueller Stand sichern
-**Status:** ⏸️ Nicht gestartet  
-**Warum zuerst:** Bevor irgendwas geändert wird - Sicherheitsnetz!
+**Status:** ✅ ERLEDIGT  
+**Abgeschlossen:** 12. Nov 2025, 19:57
+**Details:** 
+- Webroot: 246 MB → `pi-backups/2025-11-12/webroot/`
+- Configs: 36 KB → `pi-backups/2025-11-12/configs/`
+- Git committed & gepusht (commit a4f0f3c)
 
 **Aufgaben:**
-- [ ] Pi-Webroot backupen: `/var/www/html/`
-- [ ] Pi-Configs backupen: `/etc/hostapd`, `/etc/dnsmasq.conf`, `/etc/nginx`
-- [ ] Lokale Dateien committen
+- [x] Pi-Webroot backupen: `/var/www/html/` ✅
+- [x] Pi-Configs backupen: `/etc/hostapd`, `/etc/dnsmasq.conf`, `/etc/nginx` ✅
+- [x] Lokale Dateien committen ✅
 
 **Befehle:**
 ```bash
@@ -215,4 +219,4 @@ navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregi
 
 ---
 
-**Zuletzt aktualisiert:** 12. November 2025, 18:15
+**Zuletzt aktualisiert:** 12. November 2025, 20:00

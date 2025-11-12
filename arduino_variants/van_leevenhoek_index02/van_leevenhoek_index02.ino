@@ -1,13 +1,14 @@
 // cosmiccannibalism 
 // kunst- und brotmuseum ulm
 // winzige giganten exhibition
-// VAN LEEVENHOEK VERSION (index02.html)
+// VAN LEEUWENHOEK VERSION (index02.html)
 //
-// Video duration: ~122 seconds
-// Relay timing: 125000ms (125s)
+// Video duration: ~127.0 seconds
+// Relay timing: 500ms delay + 126500ms duration (127s total)
 //
 // •reads mechanical start button
 // •sends keyboard Space event on button press
+// •sends 'l' on 6 second long-press (return to trailer)
 // •relay opens when movie is playing (timer)
 
 #include <Keyboard.h>
@@ -17,15 +18,18 @@ bool buttonLocked = false;               // Cooldown lock flag
 const int buttonPin = 6;                 // Pin where the button is connected
 const unsigned long debounceDelay = 50;  // Debounce time in milliseconds
 const unsigned long cooldownDelay = 200; // Cooldown time after valid press (in ms)
+const unsigned long longPressThreshold = 6000; // Long-press threshold (6 seconds)
 bool lastButtonState = HIGH;             // Start with HIGH because of pull-up
 const int relayPin = 7;                  // Relay pin (change as needed)
-const unsigned long relayDelay = 1000;   // Delay before relay opens (1000ms)
-const unsigned long relayDuration = 125000; // Relay open duration for Van Leevenhoek video (125s)
+const unsigned long relayDelay = 500;    // Delay before relay opens (500ms)
+const unsigned long relayDuration = 126500; // Relay open duration for Van Leeuwenhoek video (127s - 500ms)
 unsigned long buttonPressedAt = 0;
 unsigned long relayOpenedAt = 0;
 bool relayOpen = false;
 bool relayPending = false;
 unsigned long lastDebounceTime = 0;
+unsigned long buttonDownTime = 0;        // Track when button was first pressed
+bool longPressSent = false;              // Track if long-press 'l' was already sent
 
 void setup() {
   pinMode(buttonPin, INPUT_PULLUP);
@@ -42,6 +46,21 @@ void loop() {
   if (reading != lastButtonState) {
     lastDebounceTime = currentTime;
     lastButtonState = reading;
+    
+    // Button pressed down - start tracking for long-press
+    if (reading == LOW) {
+      buttonDownTime = currentTime;
+      longPressSent = false;
+    }
+  }
+
+  // Check for long-press (6 seconds held down)
+  if (reading == LOW && !longPressSent && 
+      (currentTime - buttonDownTime >= longPressThreshold)) {
+    Keyboard.press('l');
+    delay(30);
+    Keyboard.release('l');
+    longPressSent = true; // Only send once per hold
   }
 
   // On valid button press: send Space, schedule relay open, reset timer

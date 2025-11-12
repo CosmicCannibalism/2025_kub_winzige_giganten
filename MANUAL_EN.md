@@ -15,14 +15,15 @@
 
 2. **Check Network**
    - Pi automatically provides hotspot "winzige_giganten"
-   - Password: `giganten2025`
+   - Password: `winzigegiganten`
+   - ⏰ **IMPORTANT:** After reboot it takes approx. **5 minutes** until hotspot is active
    - If studio WiFi available: Pi auto-connects for internet access
    - Internet is optional - installation works offline
 
 3. **Prepare iPads**
    - Power on and unlock iPads
    - Open WiFi settings
-   - Connect to "winzige_giganten" (Password: `giganten2025`)
+   - Connect to "winzige_giganten" (Password: `winzigegiganten`)
    - Launch PWA app from homescreen (see Section 2)
 
 ### Daily Startup
@@ -39,8 +40,10 @@
 
 1. **Open Safari** (important: only Safari supports PWA!)
 2. **Enter address**: 
-   - `http://cosmicpi.local` (recommended) OR
-   - `http://192.168.4.1` (hotspot IP)
+   - iPad 1: `https://192.168.4.1/index.html` (Pasteur)
+   - iPad 2: `https://192.168.4.1/index01.html` (Robert Hooke)
+   - iPad 3: `https://192.168.4.1/index02.html` (Van Leeuwenhoek)
+   - Alternative: `http://cosmicpi.local` (if mDNS works)
 3. **Wait for video caching**:
    - Overlay shows "Preparing exhibition, please wait…"
    - Progress displayed: "Caching teaser.mp4… 25%"
@@ -132,18 +135,19 @@ sudo journalctl -u wg-watchdog.service -f
 5. Videos are now cached
 
 ### Problem: Hotspot "winzige_giganten" not visible
-**Cause**: Pi too far away, power outage, or watchdog repairing  
+**Cause**: Pi booting (takes ~5min), power outage, or watchdog repairing  
 **Solution**:
-1. Wait 3-5 minutes (watchdog auto-repairs)
-2. Move Pi closer (max. 4-5m range)
-3. If problem persists: Restart Pi (briefly disconnect power)
+1. **After reboot:** Wait 5 minutes (normal startup time!)
+2. Check Pi LEDs: Green blinking = active, Red solid = power
+3. If still not visible after 10min: Restart Pi (briefly disconnect power)
+4. Range: max. 4-5m depending on obstacles
 
 ### Problem: iPad won't connect to hotspot
 **Cause**: WiFi cache or wrong password  
 **Solution**:
 1. iPad: Settings → WiFi → "winzige_giganten" info button (i)
 2. "Forget This Network" → Confirm
-3. Reconnect with password: `giganten2025`
+3. Reconnect with password: `winzigegiganten`
 
 ### Problem: Videos load slowly or stutter
 **Cause**: Videos loaded from network, not from cache  
@@ -201,6 +205,69 @@ For new app versions:
 
 ---
 
+## 3.5 Guided Access (App-Lock for Exhibition)
+
+To lock iPads in single-app mode (prevents visitors from accessing Settings, Home, etc.):
+
+### Setup Guided Access Code (once)
+1. iPad: **Settings** → **Accessibility** → **Guided Access**
+2. Enable **Guided Access**
+3. Set **Passcode Settings** → Create 4-digit code (e.g., `1234`)
+
+### Start Guided Access (before exhibition)
+1. Open PWA from homescreen (full-screen mode)
+2. **Press Power button 3 times quickly** → Guided Access menu appears
+3. Optional: **Options** → Disable **Touch** (if button-only interaction)
+4. Tap **Start** (top right)
+5. iPad is now locked to this app!
+
+### End Guided Access (after exhibition)
+1. **Press Power button 3 times quickly**
+2. Enter passcode
+3. Tap **End** (top left)
+
+**Important:** Test this before opening hours! Without the passcode, you cannot exit the app.
+
+---
+
+## 4. Technical Details
+
+### 4.1 PWA Features
+- **Vignette Effects**: Cinematic darkening at edges
+  - Teaser: 67% transparent → 21% black radial gradient
+  - Main video: 63% transparent → 27% black radial gradient
+- **Icons**: 180x180px (iPad), 192x192px, 512x512px for each scientist
+  - Absolute paths: `/icons/icon-pasteur-180.png` etc.
+  - Cached by Service Worker v21
+- **Offline Support**: Videos fully cached after first load
+- **Auto-Replay**: Videos loop automatically
+
+### 4.2 Known Problems & Workarounds
+
+#### Icon shows screenshot instead of logo (iOS bug)
+**Cause**: iOS caches icon screenshots aggressively  
+**Workaround**:
+1. iPad: Settings → Safari → Clear History and Website Data
+2. Restart iPad (hold Power + Volume, slide to power off)
+3. Reconnect to hotspot
+4. Reinstall PWA (delete old, Safari → URL → Share → Add to Home Screen)
+⚠️ May not work 100% - iOS icon cache persists sometimes
+
+#### Hotspot takes 5 minutes after boot
+**Cause**: systemd service startup delays (hostapd, dnsmasq)  
+**Solution**: Wait patiently, this is normal behavior after power cycle
+
+#### PWA shows black screen
+**Cause**: Service Worker cache corrupted or video path wrong  
+**Solution**:
+1. Safari: Open developer console (Settings → Safari → Advanced → Web Inspector)
+2. Run: `navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()))`
+3. Run: `caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))))`
+4. Reload page: `location.reload(true)`
+5. Reinstall PWA
+
+---
+
 ## 7. Technical Specifications
 
 ### Hardware
@@ -216,14 +283,15 @@ For new app versions:
 - **Hotspot**: hostapd + dnsmasq
 - **Monitoring**: Telegram Bot, healthchecks.io, exhibition-monitor.service
 - **Watchdog**: wg-watchdog.service (2min interval)
-- **PWA**: Service Worker v4 with full video precaching
+- **PWA**: Service Worker v21 with full video precaching
 
 ### Network
 - **Hotspot SSID**: `winzige_giganten`
-- **Password**: `giganten2025`
+- **Password**: `winzigegiganten`
 - **IP Range**: 192.168.4.1 - 192.168.4.254
 - **Pi Hotspot IP**: 192.168.4.1
 - **mDNS**: cosmicpi.local (works only in studio WiFi)
+- **Boot Delay**: ~5 minutes until hotspot active after power on
 
 ### Video Assets
 - **teaser.mp4**: 12s, 15MB (loop)
@@ -253,12 +321,12 @@ For new app versions:
 ## Appendix: Quick Reference Cheatsheet
 
 ### 🚀 Quick Start
-1. Power on Pi (wait 3 min)
-2. Connect iPad to "winzige_giganten" (PW: `giganten2025`)
+1. Power on Pi (wait 5 min)
+2. Connect iPad to "winzige_giganten" (PW: `winzigegiganten`)
 3. Launch PWA from homescreen
 
 ### 📱 PWA Installation
-Safari → `http://cosmicpi.local` → Share → "Add to Home Screen"
+Safari → `https://192.168.4.1/index.html` (or index01/index02) → Share → "Add to Home Screen"
 
 ### 🔧 Essential Commands (Technician)
 ```bash

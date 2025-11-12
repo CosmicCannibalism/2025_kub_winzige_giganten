@@ -3,8 +3,8 @@
 // - Ensures 100% offline functionality with progress reporting
 // - Serves cached content with proper Range request support for videos
 
-const APP_SHELL_CACHE = 'wg-shell-v21';
-const VIDEO_CACHE = 'wg-videos-v21';
+const APP_SHELL_CACHE = 'wg-shell-v22';
+const VIDEO_CACHE = 'wg-videos-v22';
 // Derive scope and index path relative to the service worker location
 const SW_URL = self.location.href;
 const SW_BASE = new URL('.', SW_URL).pathname;

@@ -15,14 +15,15 @@
 
 2. **Netzwerk prüfen**
    - Pi stellt automatisch Hotspot "winzige_giganten" bereit
-   - Passwort: `giganten2025`
+   - Passwort: `winzigegiganten`
+   - ⏰ **WICHTIG:** Nach Neustart dauert es ca. **5 Minuten** bis Hotspot aktiv ist
    - Falls Studio-WLAN verfügbar: Pi verbindet sich automatisch für Internet-Zugang
    - Internet ist optional - Installation läuft auch ohne
 
 3. **iPads vorbereiten**
    - iPads einschalten und entsperren
    - WLAN-Einstellungen öffnen
-   - Mit "winzige_giganten" verbinden (Passwort: `giganten2025`)
+   - Mit "winzige_giganten" verbinden (Passwort: `winzigegiganten`)
    - PWA-App vom Homescreen starten (siehe Abschnitt 2)
 
 ### Tägliche Inbetriebnahme
@@ -39,8 +40,10 @@
 
 1. **Safari öffnen** (wichtig: nur Safari unterstützt PWA!)
 2. **Adresse eingeben**: 
-   - `http://cosmicpi.local` (empfohlen) ODER
-   - `http://192.168.4.1` (Hotspot-IP)
+   - iPad 1: `https://192.168.4.1/index.html` (Pasteur)
+   - iPad 2: `https://192.168.4.1/index01.html` (Robert Hooke)
+   - iPad 3: `https://192.168.4.1/index02.html` (Van Leeuwenhoek)
+   - Alternativ: `http://cosmicpi.local` (wenn mDNS funktioniert)
 3. **Warten auf Video-Caching**:
    - Overlay zeigt "Preparing exhibition, please wait…"
    - Fortschritt wird angezeigt: "Caching teaser.mp4… 25%"
@@ -98,6 +101,56 @@ Jedes iPad braucht seine eigene Version - beim ersten Aufruf entsprechende URL v
 - **Einstellungen** → **Allgemein** → **Hintergrundaktualisierung** → Aus
 - **Einstellungen** → **WLAN**
   - **Auf Netzwerke hinweisen** → Aus
+
+### 3.5 Guided Access (App-Lock für Ausstellung)
+**WICHTIG für Ausstellungsbetrieb!** Verhindert, dass Besucher die App verlassen.
+
+1. **Aktivieren:**
+   - **Einstellungen** → **Bedienungshilfen** → **Geführter Zugriff** → **Ein**
+   - **Code festlegen** (6-stellig, gut merken!)
+   - **Shortcuts für Bedienungshilfen** → **Ein**
+
+2. **App sperren:**
+   - PWA-App öffnen
+   - **Power-Taste 3x schnell drücken**
+   - Code eingeben
+   - Optional: Bereiche deaktivieren (Touch-Bereiche einschränken)
+   - **"Starten"** tippen
+   - ✅ App ist jetzt gesperrt - Besucher können nicht zur Home Screen
+
+3. **App entsperren:**
+   - **Power-Taste 3x schnell drücken**
+   - Code eingeben
+   - **"Beenden"**
+
+---
+
+## 4. Technische Details
+
+### 4.1 PWA Features
+- **Service Worker Caching:** Alle Videos, HTML, CSS, JS werden offline gecacht (v21)
+- **Vignetten-Effekte:** Cinematic Overlays auf Teaser (67% Stärke) und Main Video (63% Stärke)
+- **Icons:** 
+  - Pasteur: Lila Icon
+  - Robert Hooke: Grünes Icon
+  - Van Leeuwenhoek: Blaues Icon
+  - Icon-Größen: 180px (iOS), 192px, 512px
+  - Pfade: `/icons/icon-<name>-<size>.png` (absolute Pfade für iOS-Kompatibilität)
+
+### 4.2 Bekannte Probleme & Workarounds
+
+**Icon zeigt Screenshot statt richtiges Icon:**
+- iOS cached Home Screen Icons sehr aggressiv
+- **Lösung:** iPad komplett neustarten + Safari Cache löschen + PWA neu installieren
+- Manchmal hilft auch: App-Name beim Hinzufügen ändern
+
+**Hotspot nach Neustart nicht sofort verfügbar:**
+- Systemd Services brauchen ca. 5 Minuten zum Starten
+- **Lösung:** Einfach warten, kein Fehler!
+
+**Schwarzer Bildschirm nach Start:**
+- Videos nicht im richtigen Verzeichnis oder Service Worker Cache defekt
+- **Lösung:** Safari Console öffnen, Service Worker deregistrieren (siehe Troubleshooting)
 
 ### 3.5 Geführter Zugriff (Kiosk-Modus)
 **Wichtigster Schritt für Ausstellungsbetrieb!**
