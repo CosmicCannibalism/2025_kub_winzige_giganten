@@ -3,8 +3,8 @@
 // - Ensures 100% offline functionality with progress reporting
 // - Serves cached content with proper Range request support for videos
 
-const APP_SHELL_CACHE = 'wg-shell-v20';
-const VIDEO_CACHE = 'wg-videos-v20';
+const APP_SHELL_CACHE = 'wg-shell-v21';
+const VIDEO_CACHE = 'wg-videos-v21';
 // Derive scope and index path relative to the service worker location
 const SW_URL = self.location.href;
 const SW_BASE = new URL('.', SW_URL).pathname;
@@ -19,8 +19,15 @@ const APP_SHELL_FILES = [
   SW_BASE + 'manifest.json',
   SW_BASE + 'manifest01.json',
   SW_BASE + 'manifest02.json',
-  SW_BASE + 'icons/icon-192.png',
-  SW_BASE + 'icons/icon-512.png'
+  SW_BASE + 'icons/icon-pasteur-180.png',
+  SW_BASE + 'icons/icon-pasteur-192.png',
+  SW_BASE + 'icons/icon-pasteur-512.png',
+  SW_BASE + 'icons/icon-hooke-180.png',
+  SW_BASE + 'icons/icon-hooke-192.png',
+  SW_BASE + 'icons/icon-hooke-512.png',
+  SW_BASE + 'icons/icon-leeuwenhoek-180.png',
+  SW_BASE + 'icons/icon-leeuwenhoek-192.png',
+  SW_BASE + 'icons/icon-leeuwenhoek-512.png'
 ];
 
 // All videos to precache for full offline support

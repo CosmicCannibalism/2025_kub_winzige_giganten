@@ -123,29 +123,46 @@ function preloadMainVideo() {
 
   // Keyboard: Space handling
   window.addEventListener('keydown', (e)=>{
-    if(e.code !== 'Space') return;
+    if(e.code !== 'Space' && e.key !== 'l') return;
     // don't react while overlay is active
     if(!overlay.classList.contains('hidden')) return;
     e.preventDefault();
-    if(teaser.classList.contains('visible') && !main.classList.contains('visible')){
-      // Switch from teaser to main
-      teaser.pause();
-      teaser.currentTime = 0; // Reset teaser position
+    
+    // Long-press 'l' key from Arduino: Return to teaser (only from main video)
+    if(e.key === 'l' && main.classList.contains('visible')) {
+      main.pause();
       main.currentTime = 0;
-      main.classList.add('visible'); main.classList.remove('hidden');
-      teaser.classList.remove('visible'); teaser.classList.add('hidden');
-      // NO load() - video already cached by Service Worker
-      main.play().catch((err)=>{
-        console.warn('Main video play failed:', err);
+      teaser.currentTime = 0;
+      teaser.classList.add('visible'); teaser.classList.remove('hidden');
+      main.classList.remove('visible'); main.classList.add('hidden');
+      teaser.play().catch((err)=>{
+        console.warn('Teaser play failed after long-press:', err);
       });
-    } else if(main.classList.contains('visible')){
-      // Restart main video
-      main.pause(); // Pause first before reset
-      main.currentTime = 0;
-      // NO load() - just restart from cached video
-      main.play().catch((err)=>{
-        console.warn('Main video restart failed:', err);
-      });
+      return;
+    }
+    
+    // Space key handling (original behavior)
+    if(e.code === 'Space') {
+      if(teaser.classList.contains('visible') && !main.classList.contains('visible')){
+        // Switch from teaser to main
+        teaser.pause();
+        teaser.currentTime = 0; // Reset teaser position
+        main.currentTime = 0;
+        main.classList.add('visible'); main.classList.remove('hidden');
+        teaser.classList.remove('visible'); teaser.classList.add('hidden');
+        // NO load() - video already cached by Service Worker
+        main.play().catch((err)=>{
+          console.warn('Main video play failed:', err);
+        });
+      } else if(main.classList.contains('visible')){
+        // Restart main video
+        main.pause(); // Pause first before reset
+        main.currentTime = 0;
+        // NO load() - just restart from cached video
+        main.play().catch((err)=>{
+          console.warn('Main video restart failed:', err);
+        });
+      }
     }
   });
 

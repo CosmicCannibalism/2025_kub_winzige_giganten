@@ -3,108 +3,6 @@
 	 Human-friendly, editable CSS
 	 ----------------------------- */
 
-/* Style Panel */
-.style-panel {
-	position: fixed;
-	top: 20px;
-	right: 20px;
-	width: 300px;
-	background: rgba(0, 0, 0, 0.9);
-	border: 1px solid #333;
-	border-radius: 8px;
-	padding: 20px;
-	z-index: 1000;
-	transform: translateX(320px);
-	transition: transform 0.3s ease;
-	color: #fff;
-	font-size: 14px;
-	backdrop-filter: blur(10px);
-}
-
-.style-panel.open {
-	transform: translateX(0);
-}
-
-.style-panel-toggle {
-	position: fixed;
-	top: 20px;
-	right: 20px;
-	background: rgba(0, 0, 0, 0.8);
-	border: 1px solid #333;
-	color: #fff;
-	padding: 10px;
-	border-radius: 5px;
-	cursor: pointer;
-	z-index: 1001;
-	font-size: 12px;
-}
-
-.panel-section {
-	margin-bottom: 20px;
-	padding-bottom: 15px;
-	border-bottom: 1px solid #333;
-}
-
-.panel-section:last-child {
-	border-bottom: none;
-	margin-bottom: 0;
-}
-
-.panel-section h3 {
-	margin: 0 0 15px 0;
-	font-size: 16px;
-	color: #fff;
-}
-
-.panel-row {
-	display: flex;
-	align-items: center;
-	margin-bottom: 10px;
-	gap: 10px;
-}
-
-.panel-row label {
-	min-width: 80px;
-	font-size: 12px;
-	color: #ccc;
-}
-
-.panel-row input[type="range"] {
-	flex: 1;
-	margin: 0 5px;
-}
-
-.panel-row input[type="color"] {
-	width: 40px;
-	height: 30px;
-	border: none;
-	border-radius: 4px;
-	cursor: pointer;
-}
-
-.panel-row input[type="checkbox"] {
-	transform: scale(1.2);
-}
-
-.panel-row .value-display {
-	min-width: 30px;
-	text-align: right;
-	font-size: 11px;
-	color: #999;
-}
-
-/* Vignette overlay */
-.vignette-overlay {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	pointer-events: none;
-	z-index: 10;
-	transition: opacity 0.3s ease;
-}
-
 /* Reset / base */
 html,
 body {
@@ -235,4 +133,63 @@ button {
     transition: opacity 360ms ease;
     pointer-events: none;
 }
+
+/* -----------------------------
+	 Cinematic Settings Export
+	 Film effects and vignettes
+	 ----------------------------- */
+
+/* Position overlays absolutely over video */
+.vignette-teaser,
+.vignette-main {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.vignette-teaser {
+    background: radial-gradient(ellipse at center, transparent 0%, transparent 67%, rgba(0, 0, 0, 0.21) 100%);
+}
+
+.vignette-main {
+    background: radial-gradient(ellipse at center, transparent 0%, transparent 63%, rgba(0, 0, 0, 0.28) 100%);
+}
+
+/* Settings Object for Reference:
+{
+  "teaser": {
+    "enabled": true,
+    "color": "#000000",
+    "strength": 67,
+    "opacity": 21
+  },
+  "main": {
+    "enabled": true,
+    "color": "#000000",
+    "strength": 63,
+    "opacity": 28
+  },
+  "effects": {
+    "noise": {
+      "enabled": true,
+      "intensity": 66
+    },
+    "scratches": {
+      "enabled": true,
+      "opacity": 100
+    },
+    "grade": {
+      "enabled": true,
+      "color": "#ffffff",
+      "intensity": 100
+    }
+  },
+  "global": {
+    "teaserEffectsEnabled": true,
+    "mainEffectsEnabled": true
+  }
+}
+*/
+
 /* End of file */

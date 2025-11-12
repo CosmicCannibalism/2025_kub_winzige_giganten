@@ -12,32 +12,36 @@
 	<link rel="manifest" href="manifest.json">
 
 	<!-- iOS icons (iOS ignores web manifest icons for homescreen) -->
-	<link rel="apple-touch-icon" href="icons/icon-192.png">
-	<link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-pasteur-180.png">
+	<link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-pasteur-192.png">
+	<link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-pasteur-512.png">
+	<!-- Preload primary icon to help iOS find it -->
+	<link rel="preload" as="image" href="/icons/icon-pasteur-180.png">
 
 	<!-- iOS splash screens can be added per-device if desired (not included) -->
-	<link rel="stylesheet" href="style.css?v=20">
-	<script src="script.js?v=20" defer></script>
+	<link rel="stylesheet" href="style.css?v=21">
+	<script src="script.js?v=21" defer></script>
 </head>
 
 <body>
 	<!-- App container -->
 	<div class="app" id="app">
 
-		<!-- Video layers: teaser (default visible) and main (hidden until triggered) -->
-		<div class="video-wrap">
-			<video id="teaserVideo" class="visible" playsinline preload="auto" loop>
-				<source src="videos/teaser.mp4" type="video/mp4">
-				Your browser does not support the teaser video.
-			</video>
-
-		<video id="mainVideo" class="hidden" playsinline preload="metadata">
-			<source src="videos/Pasteur.mp4" type="video/mp4">
-			Your browser does not support the main video.
+	<!-- Video layers: teaser (default visible) and main (hidden until triggered) -->
+	<div class="video-wrap">
+		<video id="teaserVideo" class="visible" playsinline preload="auto" loop>
+			<source src="videos/teaser.mp4" type="video/mp4">
+			Your browser does not support the teaser video.
 		</video>
-		</div>
 
-		<!-- Loading overlay. Shown until both videos are ready or timeout occurs -->
+	<video id="mainVideo" class="hidden" playsinline preload="metadata">
+		<source src="videos/Pasteur.mp4" type="video/mp4">
+		Your browser does not support the main video.
+	</video>
+		<!-- Cinematic vignette overlays -->
+		<div class="vignette-teaser"></div>
+		<div class="vignette-main"></div>
+	</div>		<!-- Loading overlay. Shown until both videos are ready or timeout occurs -->
 		<div id="overlay" role="status" aria-live="polite">
 			<div class="spinner" aria-hidden="true"></div>
 			<div class="overlay-msg" id="overlayMsg">Preparing exhibition, please wait…</div>
