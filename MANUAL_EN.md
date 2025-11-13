@@ -29,8 +29,14 @@
 ### Daily Startup
 1. Raspberry Pi is already on (24/7 operation recommended)
 2. Unlock iPads
-3. Tap PWA app from homescreen
-4. System is immediately ready
+3. **Tap PWA app from homescreen**
+4. **⭐ IMPORTANT - Morning Initialization (per iPad):**
+   - **Hold button for 6 seconds** (Long-press)
+   - Wait until trailer appears
+   - System is ready!
+   - **Why:** Prevents hangs from power loss/iPad lock overnight
+   - **What happens:** App jumps to trailer, Arduino relay closes, timer resets
+5. Quick test: Press button briefly → Video starts → Relay opens
 
 ---
 

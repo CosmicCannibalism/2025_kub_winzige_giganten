@@ -61,6 +61,13 @@ void loop() {
     delay(30);
     Keyboard.release('l');
     longPressSent = true; // Only send once per hold
+    
+    // Close relay and reset timer on long-press (morning initialization)
+    digitalWrite(relayPin, LOW);
+    relayOpen = false;
+    relayPending = false;
+    buttonPressedAt = 0;
+    relayOpenedAt = 0;
   }
 
   // On valid button press: send Space, schedule relay open, reset timer

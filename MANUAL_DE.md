@@ -29,8 +29,14 @@
 ### Tägliche Inbetriebnahme
 1. Raspberry Pi ist bereits eingeschaltet (24/7 Betrieb empfohlen)
 2. iPads entsperren
-3. PWA-App vom Homescreen antippen
-4. System ist sofort einsatzbereit
+3. **PWA-App vom Homescreen antippen**
+4. **⭐ WICHTIG - Morgendliche Initialisierung (pro iPad):**
+   - Knopf **6 Sekunden lang gedrückt halten** (Long-press)
+   - Warten bis Trailer erscheint
+   - System ist bereit!
+   - **Warum:** Verhindert Hänger durch Stromausfall/iPad-Sperre über Nacht
+   - **Was passiert:** App springt zu Trailer, Arduino Relay schließt, Timer resettet
+5. Kurz-Test: Knopf kurz drücken → Video startet → Relay öffnet
 
 ---
 

@@ -3,12 +3,30 @@
 
 ---
 
+## 🌅 MORGENDLICHE INITIALISIERUNG
+
+**Jeden Morgen VOR Öffnung (pro iPad):**
+
+1. **PWA öffnen** vom Homescreen
+2. **Knopf 6 Sekunden halten** (Long-press)
+3. **Warten** bis Trailer erscheint
+4. ✅ System bereit!
+
+**Was passiert:**
+- App springt zu Trailer zurück
+- Arduino Relay wird geschlossen
+- Timer wird zurückgesetzt
+
+**Warum:** Verhindert Hänger durch Stromausfall oder iPad-Sperre über Nacht.
+
+---
+
 ## 📋 DAILY CHECKLIST
 
 - [ ] Pi läuft (LEDs leuchten)
 - [ ] Hotspot "winzige_giganten" sichtbar
 - [ ] iPads connected
-- [ ] PWA startet vom Homescreen
+- [ ] **Pro iPad: 6s Long-press → Trailer** ⭐
 - [ ] Knopf-Test: Video startet + Relais öffnet
 
 ---
