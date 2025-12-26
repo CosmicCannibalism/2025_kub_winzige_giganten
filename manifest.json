@@ -2,7 +2,7 @@
   "name": "Winzige Giganten — Exhibition",
   "short_name": "WinzigeGiganten",
   "description": "Kiosk web app for the Winzige Giganten exhibition",
-  "start_url": "./winzige_giganten_index.html",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "landscape",
